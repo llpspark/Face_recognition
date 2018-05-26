@@ -1,6 +1,6 @@
 
-整个流程的处理思路如下图：
-![](https://i.imgur.com/FxUF1MR.png)
+##数据清洗处理流程如下图：
+![](https://i.imgur.com/7l8b3FA.png)
 
 
 * 分数表复原（生成原始分数表）
@@ -17,3 +17,9 @@
 	* 代码：merge_list.py
 * 得分与img取交集生成训练集
  * 代码： score_intersect_img.py
+* label 重定向（重排序、从0开始索引）
+	* 代码： change_label.py
+* 合并不同训练集生成的列表
+	* 代码：merge_data.py
+* 对生成的可训练list进行shuffle
+	* 代码： shuffle_data.py
