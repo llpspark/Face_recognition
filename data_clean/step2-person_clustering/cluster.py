@@ -1,6 +1,6 @@
 # This script is cluster different class by scores which generate by different img comparison.
 #run like:
-#> python cluster_v3.py /home/lthpc/data/NAS/NJJP/SRC/test/pair_dist.txt 80 /home/lthpc/data/NAS/NJJP/DATA/unrar/201604/140001223068 ./test/res
+#> python multi_process_cluster.py 40 /home/lthpc/data/NAS/NJJP/DATA/filtered_noise/stage1_aligned_pair_score /home/lthpc/data/NAS/NJJP/DATA/filtered_noise/stage1_aligned /home/lthpc/data/NAS/NJJP/DATA/clustered_data/stage1 40
 
 
 
@@ -9,36 +9,37 @@ import pandas as pd
 import heapq
 from itertools import chain
 import shutil
+from multiprocessing import Process
 
 
 def cal_set2set_simi(file_dict, set_data1, set_data2):
-  sum_score = 0
+  # mean value similarity
+
+  #sum_score = 0
+  #for data1 in set_data1:
+  #  for data2 in set_data2:
+  #    sum_score += file_dict[(data1, data2)]
+  #return sum_score / (len(set_data1)*len(set_data2))
+
+  # max value similarity
+  
+  #temp_max = 0
+  #for data1 in set_data1:
+  #  for data2 in set_data2:
+  #    if file_dict[(data1, data2)] > temp_max:
+  #      temp_max = file_dict[(data1, data2)]
+  #return temp_max
+
+  # median similarity
+  score_list = []
   for data1 in set_data1:
     for data2 in set_data2:
-      sum_score += file_dict[(data1, data2)]
-  return sum_score / (len(set_data1)*len(set_data2))
+      score_list.append(file_dict[(data1, data2)])
+  sorted_score = list(sorted(set(score_list)))
+  return sorted_score[len(sorted_score) // 2]
 
 
-#def find_sec_most_simi(file_dict, shell_list):
-#  score_list = []
-#  for data in shell_list:
-#    temp_score_list = []
-#    for data_ in shell_list:
-#      temp_score_list.append(cal_set2set_simi(file_dict, data, data_))
-#    score_list.append(temp_score_list)
-#  #find second largest simi and return
-#  second_max_score = heapq.nlargest(2, list(chain(*score_list)))[1]
-#  print("second_max_score:",second_max_score)
-#  for i in range(len(score_list)):
-#    for j in range(len(score_list)):
-#      if score_list[i][j] == second_max_score and i != j:
-#        return second_max_score, i, j
-#      else:
-#        print("error, havent find second largest score")
-#        return 
-#
-
-def find_sec_most_simi(file_dict,shell_list):
+def find_most_simi(file_dict,shell_list):
   tmp_max = 0
   index_i = None
   index_j = None
@@ -71,7 +72,7 @@ def merge_simi(shell_list, index_i, index_j):
 
 def cluster_by_score(file_dict, shell_list, threshod):
   while True:
-    second_max_score, index_i, index_j = find_sec_most_simi(file_dict, shell_list)
+    second_max_score, index_i, index_j = find_most_simi(file_dict, shell_list)
     shell_list = merge_simi(shell_list, index_i, index_j)
     print('shell_list lenth:', len(shell_list))
     if second_max_score < threshod or len(shell_list)==1:
@@ -79,6 +80,9 @@ def cluster_by_score(file_dict, shell_list, threshod):
        
 
 def read_file(data_path):
+  #for i, data_path_i in enumerate(os.listdir(src_dir)):
+  #  if not i % proc_num == proc_id:
+  #    continue
   ret = dict()
   shell_list = []
   #count = 0
@@ -89,6 +93,7 @@ def read_file(data_path):
       #count += 1
       words = lines.strip().split()
       if len(words) != 3: continue
+      #if float(words[2]) < 0: continue
       ret[(words[0],words[1])] = float(words[2])
       
       if not words[0] in shell_list:
@@ -97,26 +102,75 @@ def read_file(data_path):
   print("load ok", len(ret.keys()))
   return ret, shell_list
 
-if __name__ == "__main__":
-  data_path = sys.argv[1]
-  threshod = float(sys.argv[2])
-  src_path = sys.argv[3]
-  dst = sys.argv[4]
-  file_dict, shell_list = read_file(data_path)
-  result = cluster_by_score(file_dict, shell_list, threshod)
+
+
+def save_result(result, src_img_dir, dst_img_dir):
   len1 = 0
   for i in range(len(result)):
-    save_path = os.path.join(dst,str(i))
+    save_path = os.path.join(dst_img_dir, str(i))
     x = result[i]
     if len(x) == 1:
-      len1 += 1
+      #len1 += 1
       continue
     if not os.path.exists(save_path):
       os.mkdir(save_path)
     for img in x:
-      img += '.jpg'
-      shutil.copyfile(os.path.join(src_path,img),os.path.join(save_path,img))
+      #img += '.jpg'
+      shutil.copyfile(os.path.join(src_img_dir, img), os.path.join(save_path, img))
       #print(img)
-  print('merge number:', len(result) - len1)
+  #print('merge number:', len(result) - len1)
 
+
+def append_path(dst_path, append_path):
+  if not os.path.exists(os.path.join(dst_path, append_path)):
+    os.mkdir(os.path.join(dst_path, append_path))
+  return os.path.join(dst_path, append_path)
+
+
+def signle_cluster(proc_num, proc_id, src_score_dir, src_img_dir, dst_dir, threshod):
+  for i, data_path in enumerate(os.listdir(src_score_dir)):
+    if not i % proc_num == proc_id:
+      continue
+    file_dict, shell_list = read_file(os.path.join(src_score_dir, data_path))
+    result = cluster_by_score(file_dict, shell_list, threshod)
+    print(result)
+    new_src_img_dir = os.path.join(src_img_dir, data_path.split(".")[0])
+    new_dst_path = append_path(dst_dir, data_path.split(".")[0])
+    save_result(result, new_src_img_dir, new_dst_path)
+
+
+class Multi_Cluster(Process):
+  def __init__(self, proc_num, proc_id, src_score_dir, src_img_dir, dst_dir, threshod):
+    super().__init__()
+    self.proc_num = proc_num
+    self.proc_id = proc_id
+    self.src_score_dir = src_score_dir
+    self.src_img_dir = src_img_dir
+    self.dst_dir = dst_dir
+    self.threshod = threshod
+
+  def run(self):
+    signle_cluster(self.proc_num, self.proc_id, self.src_score_dir, src_img_dir, self.dst_dir, self.threshod)
+    
+
+def multi_run(proc_num, src_score_dir, src_img_dir, dst_dir, threshod):
+  proc_list = []
+  for i in range(proc_num):
+    proc_list.append(Multi_Cluster(proc_num, i, src_score_dir, src_img_dir, dst_dir, threshod))
+
+  for proc in proc_list:
+    proc.start()
+
+  for proc in proc_list:
+    proc.join()
+
+
+if __name__ == "__main__":
+  proc_num = int(sys.argv[1])
+  src_score_dir = sys.argv[2]
+  src_img_dir = sys.argv[3]
+  dst_dir = sys.argv[4]
+  threshod = float(sys.argv[5])
+  multi_run(proc_num, src_score_dir, src_img_dir, dst_dir, threshod)
+  print("ok")
 
