@@ -9,15 +9,11 @@
 		* 2、通过已有算法对同一个文件夹下的所有图片进行人脸检测后并提特征并两两求相似度（修改的insight-face接口）（cosine距离*127）  
 		* 3、根据度量出的距离（相似度）进行聚类(cluster.py)。本文件夹下的即为步骤2中的工作
 	* 具体过程：   
-	<center/>
-	![](https://i.imgur.com/RETiUDB.png)  
-	</center>
+	* ![](https://i.imgur.com/RETiUDB.png)  
 	* 效果：聚类效果很好（cluster.py可看代码的三次改进版本：v1太慢、v2有bug，最终版本效果很好）
 
 * 第二次聚类：  
 	* 缘起：经过上一步的聚类后对各ID下的脏数据完成了聚类，但根据实际的数据集情况，在不同的ID下同样混有相同的人，因此还需要在上一步的聚类结果的基础上进行第二次的聚类。
-	* 具体过程：
-	<center/>    
-	![](https://i.imgur.com/LfHiiY5.png)
-    </center>   
+	* 具体过程：    
+	* ![](https://i.imgur.com/LfHiiY5.png) 
 	* 代码：second_cluster.py
