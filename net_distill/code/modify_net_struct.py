@@ -103,11 +103,11 @@ def add_lr_wd(net_work, style = "teacher"):
           f_w.write(line)
           if "#" in line:
             pass
-          elif type_list[0] in line or type_list[1] in line or type_list[2] in line:
+          elif type_list[1] in line or type_list[2] in line:
             f_w.write(t_w_b *2)
           elif type_list[3] in line:
             f_w.write(t_w_b * 3)
-          elif type_list[4] in line:
+          elif type_list[0] in line or type_list[4] in line:
             f_w.write(t_w_b)
           else:
             pass
@@ -122,12 +122,12 @@ def add_lr_wd(net_work, style = "teacher"):
             f_w.write(s_w)
             f_w.write(s_b)
           elif type_list[3] in line:
-            f_w.write(t_w_b * 3)   # batchnorm 无论是训练还是测试学习率参数都是0
+            f_w.write(t_w_b * 3)   # batchnorm 鏃犺鏄缁冭繕鏄祴璇曞涔犵巼鍙傛暟閮芥槸0
           elif type_list[4] in line:
             f_w.write(s_w)
   os.rename(net_work + "_tmp", net_work)
 
-def modify_batchnorm_parameter(net_work):
+def modify_batchnorm_stats_parameter(net_work):
   '''
   This function is delete "use_global_stats" term in the net' BN layer, because :
   By default, it is set to false when the network is in the training
@@ -144,17 +144,31 @@ def modify_batchnorm_parameter(net_work):
           f_w.write(line)
   os.rename(net_work + "_tmp", net_work)      
 
-def modify_conv_bias(net_work):
+def modify_conv_weight_bias(net_work):
   '''
   This function is delete "bias_term" in the net's Convolution layer,
   so that make bias term to default(bias is true)
 
   '''
+  init_wb = '''
+    weight_filler {
+      type: "xavier"
+      std: 0.01
+      } 
+  bias_filler {
+    type: "constant"
+    value: 0.2
+    } 
+  '''
+
   with open(net_work, "r") as f_r:
     with open(net_work + "_tmp", "w") as f_w:
       for line in f_r.readlines():
-        if "bias_term" in line:
+        if "bias_term: false" in line:
           pass
+        if "convolution_param" in line:
+          f_w.write(line)
+          f_w.write(init_wb)
         else:
           f_w.write(line)
   os.rename(net_work + "_tmp", net_work)      
@@ -163,12 +177,12 @@ def modify_conv_bias(net_work):
 if __name__ == "__main__":
   input_net = sys.argv[1]
   rate = float(sys.argv[2])
-  modify_layername(input_net)
-  modify_num_output(input_net, rate)
-  print("all layer type are as list:",find_all_layer_type(input_net))
-  modify_conv_bias(input_net)
-  add_lr_wd(input_net, "student")
-  modify_batchnorm_parameter(input_net)
-  find_appoint_loc(input_net, divide_rate = 0.5)
+  #modify_layername(input_net)
+  #modify_num_output(input_net, rate)
+  #print("all layer type are as list:",find_all_layer_type(input_net))
+  modify_conv_weight_bias(input_net)
+  #add_lr_wd(input_net, "teacher")
+  #modify_batchnorm_stats_parameter(input_net)
+  #find_appoint_loc(input_net, divide_rate = 0.5)
   print("ok")
 
