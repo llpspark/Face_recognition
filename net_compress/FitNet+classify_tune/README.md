@@ -23,7 +23,7 @@
 		* problem：（使用caffe）网络在训练过程中student没有分类性能且teacher网络性能下降。
 		* solution：1、student 网络要将delopy形式的结果转为train形式的prototxt（具体参照[本人GitHub](https://github.com/llpspark/Face_recognition/tree/master/net_distill/code)）； 2、再将teacher net停止反向传播的同时要将其weight_decay 置为0；
 * 结果和结论：
-	* 该阶段的识别结果：
+	* 该阶段的识别结果：      
 	<center/>
 	![](https://i.imgur.com/jZSxzlL.png)
 	</center>
@@ -39,7 +39,7 @@
 		* caffe 模型转MXnet出现的问题（使用微软的MMdnn）--微调转换后的模型收敛慢，且准确率提升不高。   
 		* 使用mmdnn 由caffe转 mxnet模型时，mmdnn将res100中网络尾部的pre_fc1层的名字自动改了（变为pre_fc1_1）,原因可能：1、caffe的cov层后直接接fc层导致（没有明确定义flat层）。因为在生成的mxnet模型型中自动增加flat层，且命名pre_fc1_0,pre_fc1变成了pre_fc1_1。 2、可能是dorpout层导致，可能经过dropout层后，转换时自动增加了flat层（这个只是推测）。
 * 结果和结论：
-	* stage2 结果：
+	* stage2 结果：       
 	<center/>
 	![](https://i.imgur.com/4rEw812.png)
 	</center>
@@ -50,7 +50,7 @@
 * 寻优方式：通过不同类型的局部度量损失对模型进行微调。   
 * 结果和结论：
 	* 该阶段的识别结果：
-	<center/>
+	<center/>      
 	![](https://i.imgur.com/sYl3gQh.png)
 	</center>   
 	* 结论：对stage2得到的模型进行局部度量类型loss下的进一步finetune得到了较大的提升（尤其是百万分点以后提升较大），其中使用triplet with margin类型的loss得到了最优的结果，triplet loss次之，npair loss提升最小。
