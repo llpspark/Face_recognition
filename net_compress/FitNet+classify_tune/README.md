@@ -24,9 +24,9 @@
 		* solution：1、student 网络要将delopy形式的结果转为train形式的prototxt（具体参照[本人GitHub](https://github.com/llpspark/Face_recognition/tree/master/net_distill/code)）； 2、再将teacher net停止反向传播的同时要将其weight_decay 置为0；
 * 结果和结论：
 	* 该阶段的识别结果：      
-	<center/>
-	![](https://i.imgur.com/jZSxzlL.png)
-	</center>
+
+![](https://i.imgur.com/jZSxzlL.png)
+
 	* 结论：通过Fitnet方法与直接进行模型蒸馏训练student net对比，Fitnet方法得到的模型人脸识别准确率更高（直接蒸馏准确率很低）。
 ###stage2:(one hot finetune)  
 * 说明：基于stage1的训练结果通过one hot的方式（通过全局度量学习损失函数）进行微调，微调中的损失基于insight face 的loss类型。
@@ -40,9 +40,9 @@
 		* 使用mmdnn 由caffe转 mxnet模型时，mmdnn将res100中网络尾部的pre_fc1层的名字自动改了（变为pre_fc1_1）,原因可能：1、caffe的cov层后直接接fc层导致（没有明确定义flat层）。因为在生成的mxnet模型型中自动增加flat层，且命名pre_fc1_0,pre_fc1变成了pre_fc1_1。 2、可能是dorpout层导致，可能经过dropout层后，转换时自动增加了flat层（这个只是推测）。
 * 结果和结论：
 	* stage2 结果：       
-	<center/>
-	![](https://i.imgur.com/4rEw812.png)
-	</center>
+
+![](https://i.imgur.com/4rEw812.png)
+
 	* stage2 结论：将stage1得到的Fitnet蒸馏压缩的结果使用分类loss进行微调是有效的（使用当前最优的全局度量学习loss A-softmax(arcface)）。   
 ###stage3：(triplet loss finetune) 
 * 说明：该阶段基于stage2的训练结果通过局部度量损失函数（npair loss、triplet loss、triplet with margin）进行进一步微调。    
@@ -50,9 +50,9 @@
 * 寻优方式：通过不同类型的局部度量损失对模型进行微调。   
 * 结果和结论：
 	* 该阶段的识别结果：
-	<center/>      
-	![](https://i.imgur.com/sYl3gQh.png)
-	</center>   
+     
+![](https://i.imgur.com/sYl3gQh.png)
+  
 	* 结论：对stage2得到的模型进行局部度量类型loss下的进一步finetune得到了较大的提升（尤其是百万分点以后提升较大），其中使用triplet with margin类型的loss得到了最优的结果，triplet loss次之，npair loss提升最小。
 
 ##实验总结

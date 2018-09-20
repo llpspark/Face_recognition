@@ -4,24 +4,33 @@
 
 <font size = 3>
 ###预备知识  
-* **课程学习(Curriculum Learning)或称自步学习(Self-paced Learning)**：我们可以模拟人的认知机理，先学习简单的、普适的知识（课程），然后逐渐增加难度，过渡到学习更复杂、更专门的知识，以此完成对复杂对象的认知。模拟这一过程，我们可以将学习对象(数据、特征、概念等)按其对学习目标的难易程度，从易到难开展学习，以这种方式让机器完成复杂的学习与推理任务。
-##Abstract
-* 摘要说明神经网络两个要点的权衡：网络性能、执行速度。再次强调网络的深度和性能相关性很大，但网络变深对于神经网络训练变得困难。因此，本文从蒸馏的角度，在不明显改变teacher Net整体结果的基础上增加网络的深度，并通过逐阶段网络训练的方式提升网络性能。    
-##1、introduction   
+* **课程学习(Curriculum Learning)或称自步学习(Self-paced Learning)**：我们可以模拟人的认知机理，先学习简单的、普适的知识（课程），然后逐渐增加难度，过渡到学习更复杂、更专门的知识，以此完成对复杂对象的认知。模拟这一过程，我们可以将学习对象(数据、特征、概念等)按其对学习目标的难易程度，从易到难开展学习，以这种方式让机器完成复杂的学习与推理任务。     
+
+##Abstract     
+
+* 摘要说明神经网络两个要点的权衡：网络性能、执行速度。再次强调网络的深度和性能相关性很大，但网络变深对于神经网络训练变得困难。因此，本文从蒸馏的角度，在不明显改变teacher Net整体结果的基础上增加网络的深度，并通过逐阶段网络训练的方式提升网络性能。     
+
+##1、introduction    
+   
 * 从模型压缩的角度回顾相应技术进展（当然包括Hinton的蒸馏论文），已证明神经网络层越深性能越好（Bengio2013的论文等）。     
 * 提出本文从解决当神经网络层变深后所面临的网络模型压缩的问题。提出的FitNet可以很好的蒸馏一个比teacher Net更深、更薄（输出通道数少）的网络。该方法是基于Hinton蒸馏（KD）基础上网络训练上的改进提升，并在几个公开的数据集（MNIST, CIFAR-10, CIFAR-100, SVHN and AFLW）上得到了很好的结果。    
-##2、Method   
+
+##2、Method     
+   
 * 回顾了2015年Hinton提出的知识蒸馏的具体过程（此处略，具体可查阅之前总结的模型压缩论文survey中该论文的具体实现），指出知识整理设计的student和teacher网络深度基本差不多，而本文为了提升精读要蒸馏一个更深的网络，并提出FitNet来解决蒸馏深层网络中难于优化的问题。           
 * 基于Hint的训练。这里的hint指的是在teacher网络中间层的网络输出，并以此指导训练student网络的前半部分（student被监督的层称之为guided layer）。两阶段法训练：先用 hint training 去 pretrain 小模型前半部分的参数，再用 KD Training 去训练全体参数。
 	* （1）Teacher网络的某一中间层的权值为Wt=Whint，Student网络的某一中间层的权值为Ws=Wguided。使用一个映射函数Wr来使得Wguided的维度匹配Whint，得到Ws'。其中对于Wr的训练使用MSEloss  
-		![](https://i.imgur.com/0230dis.png)   
+![](https://i.imgur.com/0230dis.png)   
 	* （2）改造softmax的loss（即为Hinton论文的方法）：
-		![](https://i.imgur.com/7KFJkhF.png)    
-		![](https://i.imgur.com/Msls4Qc.png)   
-	* 具体训练过程如下图所示。在第一阶段通过公式（3）训练时，对student网络直接基于feature map的求L2 loss，而不是将feature map 拉成一维的vector再求L2 loss（主要原因作者分析了训练参数数量，全连接训练参数数量巨大（![](https://i.imgur.com/d3jrmo2.png)，N，o分别为特征图的边长像素数和通道数）不容易收敛，而二维的feature map监督训练可训练参数为（![](https://i.imgur.com/zszED2O.png)，k和o分别为卷积核尺寸和输出通道数）更容易收敛）    
-	![](https://i.imgur.com/JXMKNZZ.jpg)
+![](https://i.imgur.com/7KFJkhF.png)    
+![](https://i.imgur.com/Msls4Qc.png)   
+	* 具体训练过程如下图所示。在第一阶段通过公式（3）训练时，对student网络直接基于feature map的求L2 loss，而不是将feature map 拉成一维的vector再求L2 loss（主要原因作者分析了训练参数数量，全连接训练参数数量巨大（   
+![](https://i.imgur.com/d3jrmo2.png)，N，o分别为特征图的边长像素数和通道数）不容易收敛，而二维的feature map监督训练可训练参数为（    
+![](https://i.imgur.com/zszED2O.png)，k和o分别为卷积核尺寸和输出通道数）更容易收敛）    
+![](https://i.imgur.com/JXMKNZZ.jpg)
  * 与课程学习(Curriculum Learning)的关系
- 	* 作者认为提出的FitNet训练过程类似于课程学习的过程（课程学习已在前面介绍），具体无干货，略。
+ 	* 作者认为提出的FitNet训练过程类似于课程学习的过程（课程学习已在前面介绍），具体无干货，略。     
+ 
 ##3、Results on Benchmark Datasets  
 本文在几个公开的benchmark 数据集上做了测试，首先对不同数据集进行了介绍，然后在不同数据集上进行了实验和结果分析。 
      
@@ -38,10 +47,14 @@
 		* 联合hint层对guided层、两个网络输出之间进行蒸馏的共同训练（说白了就是把hint阶段归并到和蒸馏一起训）。论文指出，通过这种同时联合训练的方式同样并没能够使student网络学到东西。  
 	* SVHN（google 房屋数字数据集--数字的数据集） 、 MNIST、AFLW（人脸识别的小数据集）介绍和相关实验略。   
 
-##Analysis of empirical results
-该部分对KD、fitnet 等训练和实验结果进行了简单的理论分析，具体略。     
-##Conclusion   
+##Analysis of empirical results     
+
+该部分对KD、fitnet 等训练和实验结果进行了简单的理论分析，具体略。    
+ 
+##Conclusion     
+
 本文通过在teacher net的中间层引入hint来监督训练student net的内部隐层，使得将宽、深的网络蒸馏到更深、更薄的网络，并且student拥有更少的参数和更快的inference速度。在几个公开的数据集上得到了很好的效果。    
+
 ##附录A：网络结构和训练过程
 * 这里只将网络训练过程中的一些重要参数总结说明（以CIFAR-10、CIFAR-100为例）   
 如table 6所示为基于teacher net设计的四个student net的具体网络结构   
