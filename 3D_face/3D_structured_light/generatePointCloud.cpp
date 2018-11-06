@@ -1,8 +1,9 @@
-
+// run by: generatePointCloud_v1.exe color.png depth.raw name.pcd
 
 // C++ 标准库
 #include <iostream>
 #include <string>
+#include <fstream>
 using namespace std;
 
 // OpenCV 库
@@ -13,7 +14,6 @@ using namespace std;
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
-// 定义点云类型
 //typedef pcl::PointXYZRGBA PointT;
 typedef pcl::PointXYZRGB PointT;
 
@@ -26,60 +26,94 @@ const double camera_cy = 253.5;
 const double camera_fx = 518.0;
 const double camera_fy = 519.0;
 
-// 主函数 
+
+//The image size
+const int im_w = 640;
+const int im_h = 480;
+
+
+int LoadBinFile(const char* BinFileName, char *&buffer)
+{
+	ifstream input(BinFileName, ios::in | ios::binary);
+	if (!input.is_open())
+	{
+		std::cout << "cannot open the binfile" << endl;
+	}
+
+	input.seekg(0, ios::end);
+	int length = input.tellg();
+	input.seekg(0, ios::beg);
+
+	buffer = new char [length];
+
+	//read the hole binary block file to variable
+	input.read(buffer, length);
+	input.close();
+	return length;
+}
+
+/*
+ushort find_max(int length, unsigned short *val)
+{
+	ushort max_val = 0;
+	for (int i = 0; i < length; i++)
+	{
+		if (val[i] > max_val)
+			max_val = val[i];
+	}
+	return max_val;
+}
+*/
+
 int main(int argc, char** argv)
 {
 	string rgb_img = argv[1];
-	string depth_img = argv[2];
+	string depth_path = argv[2];
 	string output_pcd = argv[3];
-	// 读取./data/rgb.png和./data/depth.png，并转化为点云
-
-	// 图像矩阵
-	cv::Mat rgb, depth;
-	// 使用cv::imread()来读取图像
+	cv::Mat rgb;
 	rgb = cv::imread(rgb_img);
-	// rgb 图像是8UC3的彩色图像
-	// depth 是16UC1的单通道图像，注意flags设置-1,表示读取原始数据不做任何修改
-	depth = cv::imread(depth_img, -1);
+	
+	char *buffer = NULL;
+	const char* dep_path = depth_path.c_str();
+	unsigned short length = LoadBinFile(dep_path, buffer);
 
-
-	// 点云变量
-	// 使用智能指针，创建一个空点云。这种指针用完会自动释放。
+	unsigned short *value = (unsigned short *)buffer;
+	//ushort max_val = find_max(length, value);
 	PointCloud::Ptr cloud(new PointCloud);
-	// 遍历深度图
-	for (int m = 0; m < depth.rows; m++)
-		for (int n = 0; n < depth.cols; n++)
+
+	// 遍历color and depth 
+	for (int i = 0; i < im_h; i++)
+		for (int j = 0; j < im_w; j++)
 		{
-			// 获取深度图中(m,n)处的值
-			ushort d = depth.ptr<ushort>(m)[n];
+			//ushort d = value[i * im_w + j] * 255 / max_val;
+			//不需要将二进制的深度值归一化到0~255,直接使用即可。	
+			ushort d = value[i * im_w + j];
+
 			// d 可能没有值，若如此，跳过此点
 			if (d == 0)
 				continue;
-				//d = 2000;
+
 			// d 存在值，则向点云增加一个点
 			PointT p;
-
-			// 计算这个点的空间坐标
 			p.z = double(d) / camera_factor;
-			p.x = (n - camera_cx) * p.z / camera_fx;
-			p.y = (m - camera_cy) * p.z / camera_fy;
+			p.x = (j - camera_cx) * p.z / camera_fx;
+			p.y = (i - camera_cy) * p.z / camera_fy;
 
-			// 从rgb图像中获取它的颜色
-			// rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
-			p.b = rgb.ptr<uchar>(m)[n * 3];
-			p.g = rgb.ptr<uchar>(m)[n * 3 + 1];
-			p.r = rgb.ptr<uchar>(m)[n * 3 + 2];
-			// 把p加入到点云中
+			p.b = rgb.ptr<uchar>(i)[j * 3];
+			p.g = rgb.ptr<uchar>(i)[j * 3 + 1];
+			p.r = rgb.ptr<uchar>(i)[j * 3 + 2];
 			cloud->points.push_back(p);
 		}
-
+	
+	delete[]buffer;
 
 	// 设置并保存点云
 	cloud->height = 1;
 	cloud->width = cloud->points.size();
 	cout << "point cloud size = " << cloud->points.size() << endl;
-	cloud->is_dense = true;
+	cloud->is_dense = false;
 	pcl::io::savePCDFile(output_pcd, *cloud);
+
 	// 清除数据并退出
 	cloud->points.clear();
 	cout << "Point cloud saved." << endl;
