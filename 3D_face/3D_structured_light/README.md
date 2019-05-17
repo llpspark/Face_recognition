@@ -13,3 +13,15 @@
 	* 坐标变换（相机坐标系-->空间坐标系）     
 	* 点云生成和渲染
 	* pcl可视化点云
+
+
+##附录       
+   
+* 常见的3D数据格式：     
+	* obj + mtl: wavefront公司建立，可兼容绝大多数3D软件   
+	* pcd: 点云，主要依托PCL点云库    
+	* ply（polygon file format）:多边形文件格式，通过定义立体多边形表示3D          
+	* stl:通过定义所有三角面片及对应顶点表现3D，autoCAD、3d打印常使用的格式    
+	* VTK：依托于VTK工具包的一种3D数据格式    
+	* **注意**：深度图（range image）并不是3D数据，可称2.5D。   
+	* 各格式间的转换可使用PCL中的工具：[convert](https://github.com/PointCloudLibrary/pcl/blob/master/io/tools/converter.cpp)    

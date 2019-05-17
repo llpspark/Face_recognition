@@ -33,6 +33,11 @@
 		* 重建结果往往都接近平均模型，缺少个性化特征，进而效果收到制约。
 
 
+* **2015-中科院+刘晓明-Face Alignment Across Large Poses: A 3D Solution(3DDFA）**       
+	* 项目页：[链接](http://www.cbsr.ia.ac.cn/users/xiangyuzhu/projects/3DDFA/main.htm)       
+	* 代码链接：官方Matlab 代码，[pytorch复现](https://github.com/cleardusk/3DDFA)       
+	* 论文链接：[点我](https://arxiv.org/pdf/1511.07212.pdf)       
+	* 方法类型：将深度神经网络用在3DMM的参数预测上（取代传统的迭代优化形状和纹理参数--过慢），是3DMM方法在神经网络上的变种，通过该论文方法生成的       
 
 * **2017年-英国帝国理工学院 James Booth团队在3D人脸重建上的姊妹篇**     
 	* 说明：效果在2017年发表时达到了state-of-art，并得到了science报道   
