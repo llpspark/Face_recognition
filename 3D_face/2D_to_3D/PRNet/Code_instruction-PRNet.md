@@ -1,11 +1,10 @@
-<font size = 3>
-
 # PRNnet工程代码指南   
 * code:[点我](https://github.com/YadiraF/PRNet)       
 
 
 
-##代码解析    
+## 代码解析    
+
 *  run_basics.py   
 	* 功能：测试论文给出的示例图像，进行3D重建测试（图像的68个关键点已经求出，直接加载即可）     
 	* 基本流程：    
@@ -51,21 +50,23 @@
 			* 分batch前向传播预测      
 			
 
-##相关points:   
+## 相关points:   
 
 1、图像变换（相似变换）：https://cloud.tencent.com/developer/section/1415102    
 2、api.py中的process函数：
-        #将检测到的矩形框由中心点抠取出正方形（正方形边会越出矩形短边），
-        #然后将正方形抠取的图像转换到输入图像所在的坐标系下且得到指定边长的正方形，并对无值的边界区域进行填充，
-        #最终crop到指定大小的（对齐的）人脸图像
-        #croped图像通过网络forward得到对应croped_pos图,
-        #通过逆变换将croped_pos图对应回原图，从而得到最终的原图的pos图。    
+
+* 将检测到的矩形框由中心点抠取出正方形（正方形边会越出矩形短边），
+* 然后将正方形抠取的图像转换到输入图像所在的坐标系下且得到指定边长的正方形，并对无值的边界区域进行填充，
+* 最终crop到指定大小的（对齐的）人脸图像
+* croped图像通过网络forward得到对应croped_pos图,
+* 通过逆变换将croped_pos图对应回原图，从而得到最终的原图的pos图。    
+
 3、api.py中的process函数下的warp函数调用：
-#warp:根据给定的坐标变换来变形图像(默认输入shape保留，也可指定output_shape（插值）)。它将输出图像中的坐标转换为输入图像中相应的坐标。    
+
+- warp:根据给定的坐标变换来变形图像(默认输入shape保留，也可指定output_shape（插值）)。它将输出图像中的坐标转换为输入图像中相应的坐标。 
+
 4、opencv中的remap函数：
 http://www.opencv.org.cn/opencvdoc/2.3.2/html/doc/tutorials/imgproc/imgtrans/remap/remap.html#remap    
 5、程序中涉及到的相似变换及其逆。   
 6、在opencv中的图片时Mat类型的，且数据范围[0，255]，而通过opencv-python加载后的图像图像为numpy的narry类型（因为python本身没有像opencv那样的Mat、Vec3d、size等类型），其数据范围[0,1]。opencv-python是opencv的python绑定，对相关数值类型的转换opencv-python包已经自动完成（如可通过opencv-python imshow [0,1]范围的图像数据：imshow函数自动将数据范围和类型进行变换，然后调用oencv的imshow函数进行显示）。    
 7、通过最小二乘法拟合姿态变换的坐标变换矩阵 [链接1](https://blog.csdn.net/bitcarmanlee/article/details/51589143) ；[补充](https://www.cnblogs.com/wangkundentisy/p/7505487.html)
-
-</size>

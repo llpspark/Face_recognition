@@ -1,11 +1,4 @@
-<center> 
-#Week Report
 
-##Work for This Week
-</center>
-
-						
-<font size=3>  
 
 * 引：从模型压缩的角度调查了有关蒸馏相关的进展。与视觉应用型论文不同模型压缩的论文开源的比例并不多，相比较之下蒸馏相关工作算是开源比例大的。下面主要从是否开源或实现两方面按照发表时间列出相关论文和实现。并在有源码实现了论文中做了进一步相关方法的调查。    
 ##一、知识蒸馏相关论文和进展survey：（开源或有第三方实现）   
@@ -98,14 +91,14 @@
 	![](https://i.imgur.com/mnRvby2.png)   
 	* 复现性:
 		* MxNet实现：[DarkRank](https://github.com/TuSimple/DarkRank)
- 
-					
+
+			​		
 
 
 
 
 ##二、知识蒸馏相关论文和进展survey：（未开源或无第三方实现）    
- 
+
 * **2017-ICLR and CVPR-Learning Loss for Knowledge Distillation with Conditional Adversarial Networks**   
 	* 论文链接：[点我](https://arxiv.org/pdf/1709.00513.pdf)   
 	* 方法：主要通过条件GAN和KD（知识蒸馏）的形式对监督loss进行协同学习，作者认为直接使用L2loss太过武断，一定程度上限制了student模型的自主学习空间。   
@@ -131,23 +124,23 @@
 
 
 
-##附：
+## 附：
+
 * 模型压缩和蒸馏相关文档链接：
 	* [模型压缩那些事](https://zhuanlan.zhihu.com/p/28872061)   
 	* [优秀的模型压缩论文](http://memoiry.me/2018/03/19/Awesome-model-compression-and-acceleration/)      
 	* [awesome-knowledge-distillation](https://github.com/dkozlov/awesome-knowledge-distillation#papers)
-	* 
-
+	
 * 针对服务器端高性能网络：
-	* VGGNet:
-	* ResNet:
-	* InceptionNet:
+	* VGGNet:（已读：核心是比alex-net使用更小的卷积核）
+	* ResNet:（已读：核心是skip-connection）
+	* x-InceptionNet:（已读:核心是深度可分离卷积+point-wise卷积（1x1卷积））
 	* DenseNet:
 	* Inside-OutsideNet:
-	* SE-Net:
+	* SE-Net:（已读:核心是基于网络中特征图的相应对特征图给予相应的权重提升网络性能）
 * 针对移动端部署的网络：
-	* MobileNet:
+	* MobileNet:（已读:核心是深度可分离卷积+point-wise卷积（1x1卷积））
 	* ShuffleNet:
 	* ShuffleNet V2:
-	* MobileFaceNets:
+	* MobileFaceNets:（北航提出，实验效果没有那么理想）
 

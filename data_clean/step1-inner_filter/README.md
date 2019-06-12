@@ -1,5 +1,5 @@
-#data_clean:step1(选择合适阈值进行类内筛选)
-##人脸数据类内清洗处理流程如下图：
+# data_clean:step1(选择合适阈值进行类内筛选)
+## 人脸数据类内清洗处理流程如下图：
 ![](https://i.imgur.com/7l8b3FA.png)
 
 

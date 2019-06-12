@@ -2,35 +2,42 @@
 * paper:https://arxiv.org/pdf/1801.07698.pdf  
 * code:https://github.com/deepinsight/insightface       
   
+
 该文是目前FR的state-of-art（2018-6-23）   
 
-<font size = 3>
-###预备知识  
+### 预备知识  
+
 * 经过神经网络提取的特征不仅可以用于人脸识别（验证和识别）还可以用于人脸聚类的原因：无论是识别任务还是聚类任务其本质都是不同特征直接进行距离度量，度量的结果是分数值，所以通过调整得分的阈值便可应用到识别和聚类两个不同的任务。   
 * MegaFace数据集说明：MegaFace 包括两个不同的 Challenge，Challenge 1（MF1）与 Challenge 2（MF2）。MF1 可采用任何外部不限量的人脸数据来训练参赛算法；MF2 要求使用官方固定训练集 FaceScrub 和 FGNET 测试集进行训练。
 
-##Abstract
+## Abstract
+
 * 摘要部分首先表明可以提取人脸判别性特征的CNN在FR中功不可没，在最近FR任务中为了提取更具有判别性特征，一些论文主要从loss函数上进行了改进（具体这些论文提出的方法会在后面逐一介绍）。本文从三个方面考虑并改进了FR：数据、网络结构和loss，并在公开的FR数据集上达到了state-of-art。    
 
-##1、Introduction
+## 1、Introduction
 论文首先介绍了影响人脸识别的三个重要的要素：   
 
 * 第一个要素：训练模型的数据。
-	* 列举现有的公开的数据集：VGG-Face, VGG2-Face, CAISAWebFace, UMDFaces, MS-Celeb-1M。有的数据集数量较小、MS和MegeFace虽数量较大但有一定的标记噪声和长尾现象。且因为数据是深度学习驱动的动力，工业界有比学术界更大量的数据，因此工业界FR的准确率始终比学术界要高。因此数据的质和量在FR中非常重要。   
-
+	
+* 列举现有的公开的数据集：VGG-Face, VGG2-Face, CAISAWebFace, UMDFaces, MS-Celeb-1M。有的数据集数量较小、MS和MegeFace虽数量较大但有一定的标记噪声和长尾现象。且因为数据是深度学习驱动的动力，工业界有比学术界更大量的数据，因此工业界FR的准确率始终比学术界要高。因此数据的质和量在FR中非常重要。   
+	
 * 第二个要素：网络结构和设置。  
+	
 	*  在FR任务中，使用诸如Res-Net、Inception-ResNet等网络结构能够得到比VGG-net、Google Inception V1等更加好的性能。同时，不同的应用场景也会使实际网络的部署在速度和准确率之间权衡。如移动端人脸验证的速度要求、十亿量级的安全系统的准确率要求等等。        
 * 第三个要素：损失函数的设计。          
  	* 基于欧式距离裕量的损失  
  		* Deep Face（两篇论文）的方法使用Softmax分类层训练损失，然而基于分类的方法非常消耗GPU空间（因为全连接层对显存的消耗最大），而且对数据的样本的均衡和数据充足等有更高的要求。Centre loss、Range loss和Marginal loss 加入了压缩类内方差增大类间距离来提升准确率，但这些方法依然是组合softmax来训练识别模型。  
-		* contrastive loss和Triplet loss使用“对训练”策略，对比损失函数由正样本对和负样本对组成，在梯度下降方法计算损失时，最小化anchor与正样本间的距离、最大化anchor与负样本间的距离。然而，对于以上这两种loss在选择有效的训练样本上很微妙（tricky）（主要体现在选择正负样本组对上）。  
+	
+	* contrastive loss和Triplet loss使用“对训练”策略，对比损失函数由正样本对和负样本对组成，在梯度下降方法计算损失时，最小化anchor与正样本间的距离、最大化anchor与负样本间的距离。然而，对于以上这两种loss在选择有效的训练样本上很微妙（tricky）（主要体现在选择正负样本组对上）。  
+	
 	* 基于角度和cosine的距离裕量     
 		* large margin Softmax（L-Softmax）提出通过加入角度乘法约束（对夹角乘以一个系数，同sphere face一样）来提升特征的判别性；sphere face（cos(m*theta)）应用L-Softmax并且将权重进行归一化，由于cosine 函数是非单调的函数，所以sphere face中使用分段函数来满足单调性，sphere face中通过组合softmax loss来促进和确保训练收敛。  
 		* 为了克服sphere face收敛困难，AMSoftmax论文将角度裕量m移至cosine空间，这样实现和优化  additive cosine margin要比sphere face更加容易。对比基于欧式距离裕量的loss，基于角度和cosine裕量的loss明显在超球面流形空间上加入了判别约束，这也更符合人脸是一个流形曲面的先验。     
-			 
+	
 * 本文在以上三个要素所作的工作：   
  	* 数据方面对MS1m数据进行了清洗；在网络结构上进行了很对对比尝试，实现速度与准确率之间的权衡；提出了新的loss 函数ArcFace 更具解释性，且在Megaface (最大的公开FR测试数据集)获得state-of-art的结果。具体后面介绍。     
- ##2、From Softmax to ArcFace   
+ 
+ ## 2、From Softmax to ArcFace   
 * softmax loss  
 ![](https://i.imgur.com/56DO22s.png)     
 * Weights Normalisation（权重规范化）   
@@ -67,7 +74,7 @@
 对于cosine face和arcface 的分析。
 由上图（a）cosineface 和arcface的分对数曲线可知，theta在[30，90]范围内时arcface的曲线低于sphere face，对应地裕量惩罚也就更大；而且从图（b）中也可以看出在训练开始时arcface的裕量惩罚也较大（红虚线低于蓝虚线）。theta在[0,30]cosine loss的裕量惩罚更大。     
 分对数分析的结论：当theta处于[60,90]时加入过大的裕量回到时网络不收敛（如m=2,lambda=0），theta处于[30,60]时，加入裕量能够显著提升网络性能，原因是theta在这个范围内对应的是semi-hard negative samples（半难负样本）；当在theta在[0,30]时，添加margin裕量并不能获得明显的性能提升，原因是在这个区间对应的是最简单样本（容易分类的样本）。因此回看上图（a）中的对分曲线，在依据上述参数，theta在[30,60]间我们便可知为什么softmax、sphereFace、cosineFace到ArcFace性能提升原因。主要这里的theta角度---30度和60度为简单训练样本和难训练样本的粗略估计阈值。     
-##3、Experiments    
+## 3、Experiments    
 本文在MegaFace（当前最大的人脸识别和验证的benchmark）上获得了state-of-art的准确率，将LFW、CFP、AgeDB作为验证集，并在网络结构的设计和loss函数的设计，在以上四个数据集上均取得了state-of-art。    
 
 * Data    
@@ -117,34 +124,5 @@
    （**Triple Loss 说明**：相比 Softmax，其特点是可以方便训练大规模 ID(百万，千万) 的数据集，不受显存的限制。但是相应的，因为它的关注点过于局部，使得性能无法达到最佳且训练需要的周期非常长。）	     
    由于GPU存储的限制基于softmax的方法（如sphereFace、Cosine Face、ArcFace）很难训练百万级别ID的人脸数据。一个实际的解决方案是使用度量学习方法，且最广泛应用的方法为Triple Loss。但Triple Loss收敛速度较慢，因此，本文采用Triple Loss来finetune 基于softmax方法训练好的模型。   
    本文在使用Triple Loss微调的实验中，本文使用LResNet100EIR 网络，设置学习率为0.005，momentum为0，权重衰减为5e-4.作者给出了对比实验，其中softmax loss微调后提升最大，同时也说明了（1）两阶段模型训练的有效性（基于softmax + triple loss 微调），（2）局部的度量学习可以与全局的超球面度量学习互为补充，共同提升模型性能。       
-##4、 Conclusions   
+## 4、 Conclusions   
 重申了本文的贡献：数据清洗、模型提出（Improved ResNet）、提出新Loss（ArcFace）并达到了state-of-art的准确率。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 		   
-
-   
-
-
-</size>

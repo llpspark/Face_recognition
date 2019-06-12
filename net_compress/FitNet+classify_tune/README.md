@@ -1,11 +1,9 @@
 <center> 
 #模型压缩之Fitnet+classify_finetune
 </center>     
+## 实验流程					
 
-##实验流程					
-<font size=3>  
-
-###stage1：（FitNet distill training）     
+### stage1：（FitNet distill training）     
 
 * 说明：stage1下分为两个子阶段，第一个子阶段为hint监督训练，第二个子阶段为整个网络监督训练。   
 
@@ -28,7 +26,8 @@
 ![](https://i.imgur.com/jZSxzlL.png)
 
 	* 结论：通过Fitnet方法与直接进行模型蒸馏训练student net对比，Fitnet方法得到的模型人脸识别准确率更高（直接蒸馏准确率很低）。
-###stage2:(one hot finetune)  
+### stage2:(one hot finetune)  
+
 * 说明：基于stage1的训练结果通过one hot的方式（通过全局度量学习损失函数）进行微调，微调中的损失基于insight face 的loss类型。
 
 * 实验环境：MXnet	
@@ -44,19 +43,20 @@
 ![](https://i.imgur.com/4rEw812.png)
 
 	* stage2 结论：将stage1得到的Fitnet蒸馏压缩的结果使用分类loss进行微调是有效的（使用当前最优的全局度量学习loss A-softmax(arcface)）。   
-###stage3：(triplet loss finetune) 
+### stage3：(triplet loss finetune) 
+
 * 说明：该阶段基于stage2的训练结果通过局部度量损失函数（npair loss、triplet loss、triplet with margin）进行进一步微调。    
 * 环境：MXnet
 * 寻优方式：通过不同类型的局部度量损失对模型进行微调。   
 * 结果和结论：
 	* 该阶段的识别结果：
-     
+    
+
 ![](https://i.imgur.com/sYl3gQh.png)
-  
+
 	* 结论：对stage2得到的模型进行局部度量类型loss下的进一步finetune得到了较大的提升（尤其是百万分点以后提升较大），其中使用triplet with margin类型的loss得到了最优的结果，triplet loss次之，npair loss提升最小。
 
-##实验总结
+## 实验总结
+
 * 通过以上三个阶段的模型压缩与微调是有效的。
 * 由stage3中得到的最终结果看，在千分点到十万分点压缩后的模型基本与teacher 模型性能相当，百万和千万分点压缩后的模型性能低于teacher模型。
-
-</size>  

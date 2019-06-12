@@ -1,7 +1,8 @@
-##Knowledge distill
+## Knowledge distill
 
 * 引：人脸识别任务中较复杂的模型确实得到了很好的识别准确率，但同时也制约着inference速度，为此从网络压缩的角度，特此在模型蒸馏的的方向上对网络模型进行简化从而实现加速。
 * 项目结构：
 	* Net_Compress.md（相关文章总结）
 	* code/（相关的代码）
 	
+

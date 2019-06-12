@@ -1,15 +1,17 @@
 # ArcFace工程代码解析   
 * code:https://github.com/deepinsight/insightface       
 
-<font size = 3>
-##train_softmax.py代码流程解析  
+  ## train_softmax.py代码流程解析  
+
 ### insigthface/src/train_softmax.py     
 * 功能：训练程序入口。集成了初始化、（训练、验证）数据加载、计算图生成、拟合训练、模型性保存等等。
+
 * 所调用的其他python模块（py文件）
 	* /src/image_iter.py 下的FaceImageIter、FaceImageIterList类用于加载训练数据   
 	* /src/common/face_image.py下的load_property函数，用于加载训练数据的property文件   
 	* /src/eval/verification.py下的1）load_bin函数用于将bin类型的验证数据解析为mx支持的NDARRAY； 2）test函数，测试加载后的验证数据（lfw等）   
 	* /src/symbols/fresnet.py 用于生成resnet类型的计算图     
+	
 * 具体流程   
 	1） 设置设备上下文（GPU or CPU）  
 	2）设置初始化参数（模型路径、batch_size、训练数据路径、类别数、lr、wd、momentun等等）   
@@ -24,19 +26,22 @@
 	11）通过PrefetchingIter加载训练数据迭代器，一边迭代训练使用     
 	12）定义_batch_callback函数，在训练过程中每完成一次batch迭代则调用该方法，方法描述如下：   
 
-		* 全局变量mbatch + 1（mbatch为当前迭代的batch总次数）   
-		* 如果mbatch达到lr_step + beta_freeze设置的值，则lr缩小10倍    
-		* 执行定义好的速度计（确认每个指定batch数进行速度计log打印）    
-		* 如果mbatch是1000的整数倍，则打印当前lr、epoch_nbatch、epoch数   
-		* 如果mbath达到verbose指定数，则在验证集上进行测试，并进行一下操作：
-			* 测试lfw数据集时，根据测试准确率数值决定是否保存模型（在ckpt=1情况下）  
-			* 打印所有验证集（lfw、agedb等）中最高的准确率    
-		* 如果mbatch超过预设的最大迭代次数，则程序退出    
+	```
+	* 全局变量mbatch + 1（mbatch为当前迭代的batch总次数）   
+	* 如果mbatch达到lr_step + beta_freeze设置的值，则lr缩小10倍    
+	* 执行定义好的速度计（确认每个指定batch数进行速度计log打印）    
+	* 如果mbatch是1000的整数倍，则打印当前lr、epoch_nbatch、epoch数   
+	* 如果mbath达到verbose指定数，则在验证集上进行测试，并进行一下操作：
+		* 测试lfw数据集时，根据测试准确率数值决定是否保存模型（在ckpt=1情况下）  
+		* 打印所有验证集（lfw、agedb等）中最高的准确率    
+	* 如果mbatch超过预设的最大迭代次数，则程序退出    
+```
 	13）加载以上配置，通过mxnet的fit函数进行参数拟合训练        
-
+	
 * 说明：
 	* 在流程3）生成计算图主要分两步：1、根据不同的网络结构类型 调用对应的计算图生成模块来生成基础计算图（除loss部分的计算图）；2、在基础网络的基础上加上loss层的symbol（包括fc7、arcloss softmax）。注意此处的基础网络指：数据输入层 + input卷积层conv0 + resnet(堆叠units) + 输出embedding层fc1。
 	* 在该脚本中通过参数解析argparse来获取程序所需参数，arg_parse函数返回的为参数解析后的Namespace类型的变量arg(其本质类似于字典),然后作者通过将arg变量变成global变量的方式，即便arg变量中没有某个分量，依旧可以对指定的该分量赋值。     
+	
 * 相关调用模块代码说明
 	* /src/image_iter.py     
 		* FaceImageIter类说明（构造函数）
@@ -65,6 +70,3 @@
 		* 根据网络结构类型、网络层数指定不同的卷积核参数(filter_list)和不同的残差单元的设置units   
 		* 具体生成过程      
 			* 1）生成data层symbol（对数据规范化到（-1，1））  2）根据input_conv生成对应的输入卷积层 3）version_se、version_act类型、version_unit等类型生成res_units的全部symbol计算图  4）根据output_fc的类型生成embedding层的symbol      
-
-
-</size>

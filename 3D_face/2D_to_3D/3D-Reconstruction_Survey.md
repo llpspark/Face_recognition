@@ -1,9 +1,8 @@
-<center> 
-#3D-Reconstruction-Survey  
+
+# 3D-Reconstruction-Survey  
 2018/9/11 10:40:42 ; by llpspark
-</center>
-<font size=3>    
-##写在前面：
+
+## 写在前面：
 按照3D人脸重建的发展的里程碑（不同类型）：     
 
 *  1、基于Statistical shape representations的3DMM重建（统计数据集中3D人脸形状分布并将其表示在一个子空间，重建时在这个子空间搜索与输入图像相似的表示进行重建，该方法基本不实用，不列举论文）。
@@ -14,7 +13,7 @@
 * UV图与UV展开：[链接点我](http://geometryhub.net/notes/uvunfold) （该链接博主的系列文章都很好）  
 ##说明：survey的主线按照开源和未开源，并以大致时间先后排序    
 
-##1、人脸三维重建(开源)     
+## 1、人脸三维重建(开源)     
 
 * **1999-SIGGRAPH-A Morphable Model For The Synthesis Of 3D Faces（3DMM重建开山之作）**   
 	* 论文链接：[点我](https://www.cs.cmu.edu/~efros/courses/AP06/Papers/Blanz-siggraph-99.pdf)   
@@ -54,7 +53,7 @@
 			<center/>
 			![](https://i.imgur.com/haEfdLI.png)
 			</center>
-   
+         
 			* 个人认为本质讲该工作是通过提出的算法构建了一个大规模的3D人脸模型库，使3D可变模型在调整时有更加丰富的组合，再加上算法中提出的3DMM模型调整算法使重建人脸比以前的质量更高。      
 	* **CVPR-Face Normals “in-the-wild” using Fully Convolutional Networks**    
 		* 论文链接：[点我](http://openaccess.thecvf.com/content_cvpr_2017/papers/Trigeorgis_Face_Normals_In-The-Wild_CVPR_2017_paper.pdf)    
@@ -86,8 +85,9 @@
 	<center/>
 	![](https://i.imgur.com/r5wbQiY.png)
 	</center> 
-	* 备注：最火，3.1k-star；可尝试。 
-
+	
+* 备注：最火，3.1k-star；可尝试。 
+	
 * **2018-ECCV-Joint 3D Face Reconstruction and Dense Alignment with Position Map Regression Network（PRNet）**    
 	* 论文链接：[点我](https://arxiv.org/abs/1803.07835)
 	* code:[点我1](https://github.com/YadiraF/PRNet)     
@@ -100,9 +100,10 @@
 		* 为了使预测出来的mesh更有意义。他们在计算损失函数的时候，对不同区域的顶点的误差进行加权
 	* 备注：可尝试 
 	
-		
+	​	
 
-##2、人脸三维重建(未开源)    
+## 2、人脸三维重建(未开源)    
+
 * **2015-arxiv-On 3D Face Reconstruction via Cascaded Regression in Shape Space(川大-刘峰)**    
 	* 论文链接：[点我](https://arxiv.org/abs/1509.06161v3)     
 	* 方法类型：3DMM+CNN回归   
@@ -119,9 +120,4 @@
 	* 算法整体框架如下图：
 <center/>
 ![](https://i.imgur.com/MkbaFc1.png)
-</center>
-
-
-  
-
-</size>    
+</center>  
