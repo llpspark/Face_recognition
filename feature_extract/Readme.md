@@ -1,0 +1,1 @@
+batch_test_id.py is extract I/C feature then compute FAR. in which invoke Barch_extrator_id.bin.
