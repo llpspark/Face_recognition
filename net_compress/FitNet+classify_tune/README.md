@@ -1,6 +1,4 @@
-<center> 
-#模型压缩之Fitnet+classify_finetune
-</center>     
+# 模型压缩之Fitnet+classify_finetune     
 ## 实验流程					
 
 ### stage1：（FitNet distill training）     
@@ -60,3 +58,4 @@
 
 * 通过以上三个阶段的模型压缩与微调是有效的。
 * 由stage3中得到的最终结果看，在千分点到十万分点压缩后的模型基本与teacher 模型性能相当，百万和千万分点压缩后的模型性能低于teacher模型。
+* pretrained model见网盘
